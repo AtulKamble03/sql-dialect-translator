@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SqlDialectTranslator/SqlDialectTranslator.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SqlDialectTranslator.Tests/SqlDialectTranslator.Tests.csproj" />
+  </Folder>
+</Solution>
