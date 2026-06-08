@@ -96,7 +96,7 @@ sql-dialect-translator/
 │   ├── E2E/             Full pipeline tests
 │   └── TestData/        Sample SQL files for testing
 ├── config/
-│   └── dialects.json    Keyword fingerprints per dialect
+│   └── dialects.json    Dialect detection keywords per dialect
 ├── sample-input/
 │   ├── mssql/           Sample SQL Server files
 │   └── postgresql/      Sample PostgreSQL files

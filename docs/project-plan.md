@@ -25,7 +25,7 @@
 | CLI parsing | CommandLineParser | 2.9.1 | Parse `--input`, `--output`, `--dry-run` args |
 | AI / Translation | Anthropic SDK (`Anthropic.SDK`) | Latest | Call Claude API for query translation |
 | AI Model | claude-sonnet-4-6 | — | Intelligent SQL restructuring |
-| Dialect config | JSON (`Config/dialects.json`) | — | Keyword fingerprints — no hardcoding |
+| Dialect config | JSON (`Config/dialects.json`) | — | Dialect detection keywords — no hardcoding |
 
 ### Testing
 
@@ -123,38 +123,51 @@
 sql-dialect-translator/
 ├── src/
 │   └── SqlDialectTranslator/
-│       ├── SqlDialectTranslator.csproj
-│       ├── Program.cs
-│       ├── Services/
+│       ├── SqlDialectTranslator.csproj  ✅ created
+│       ├── Program.cs                   ✅ created (placeholder)
+│       ├── Services/                    ← to be built (Phases 2–6)
 │       │   ├── FileScanner.cs
 │       │   ├── DialectDetector.cs
 │       │   ├── TranslationService.cs
-│       │   └── BatchTranslationService.cs
+│       │   ├── BatchTranslationService.cs
 │       │   └── OutputWriter.cs
-│       ├── Models/
+│       ├── Models/                      ← to be built (Phase 2+)
 │       │   ├── SqlFile.cs
 │       │   ├── DetectionResult.cs
 │       │   └── TranslationResult.cs
 │       └── Config/
-│           ├── TranslatorConfig.cs
-│           └── Prompts.cs
+│           ├── dialects.json            ✅ created — dialect detection keywords
+│           ├── TranslatorConfig.cs      ← to be built (Phase 4)
+│           └── Prompts.cs               ← to be built (Phase 4)
 ├── tests/
 │   └── SqlDialectTranslator.Tests/
-│       ├── SqlDialectTranslator.Tests.csproj
-│       ├── DialectDetectorTests.cs
-│       └── FileScannerTests.cs
+│       ├── SqlDialectTranslator.Tests.csproj  ✅ created
+│       ├── Unit/                        ← to be built (per phase)
+│       │   ├── FileScannerTests.cs
+│       │   ├── DialectDetectorTests.cs
+│       │   ├── TranslationServiceTests.cs
+│       │   └── OutputWriterTests.cs
+│       ├── Integration/
+│       │   └── TranslationIntegrationTests.cs
+│       ├── E2E/
+│       │   └── EndToEndTests.cs
+│       └── TestData/                    ← to be populated (Phase 2)
+│           ├── mssql/
+│           ├── postgresql/
+│           ├── ambiguous/
+│           └── empty/
 ├── sample-input/
 │   ├── mssql/
-│   │   └── sample_mssql.sql    ← sample SQL Server file for testing
+│   │   └── sample_create.sql            ✅ created
 │   └── postgresql/
-│       └── sample_postgres.sql ← sample PostgreSQL file for testing
+│       └── sample_create.sql            ✅ created
 ├── docs/
-│   ├── requirements.md         ✅ Done
-│   ├── project-plan.md         ✅ This file
-│   └── design.md               ← detailed design decisions
-├── .gitignore
-├── README.md
-└── SqlDialectTranslator.sln
+│   ├── requirements.md                  ✅ Done
+│   ├── project-plan.md                  ✅ This file
+│   └── testing-plan.md                  ✅ Done
+├── .gitignore                           ✅ created
+├── README.md                            ✅ created
+└── SqlDialectTranslator.slnx            ✅ created (.NET 10 solution format)
 ```
 
 ---
@@ -184,7 +197,7 @@ Scanning: C:\myrepo
   Found: procs/usp_get_customer.sql       → SQL Server (ambiguous — defaulted)
   Total: 4 files
 
-Translating (batch mode — 4 files)...
+Translating (sequential mode — 4 files)...
   [1/4] create_tables.sql     ✓
   [2/4] create_indexes.sql    ✓
   [3/4] v1_add_column.sql     ✓
@@ -199,28 +212,29 @@ Summary: 4 files translated | 0 failed | Time: 42s
 ---
 
 ## Phase 1 — Project Setup
-**Status: 🔲 Not Started**
-
-Manual steps you will do:
+**Status: ✅ Complete**
 
 | Task | Done? |
 |---|---|
-| Create new GitHub repo: `sql-dialect-translator` | 🔲 |
-| Clone repo locally to `C:\Personal Workspace\sql-dialect-translator` | 🔲 |
-| Create solution: `dotnet new sln -n SqlDialectTranslator` | 🔲 |
-| Create CLI project: `dotnet new console -n SqlDialectTranslator -o src/SqlDialectTranslator` | 🔲 |
-| Create test project: `dotnet new xunit -n SqlDialectTranslator.Tests -o tests/SqlDialectTranslator.Tests` | 🔲 |
-| Add projects to solution | 🔲 |
-| Install NuGet packages (Anthropic SDK, CommandLineParser) | 🔲 |
-| Create folder structure (Services, Models, Config, docs, sample-input) | 🔲 |
-| Add .gitignore (standard C# + API key protection) | 🔲 |
-| Push initial structure to GitHub | 🔲 |
+| Create new GitHub repo: `sql-dialect-translator` | ✅ |
+| Initialize repo locally at `C:\Personal Workspace\sql-dialect-translator` | ✅ |
+| Create solution: `dotnet new sln -n SqlDialectTranslator` | ✅ |
+| Create CLI project: `dotnet new console -n SqlDialectTranslator -o src/SqlDialectTranslator` | ✅ |
+| Create test project: `dotnet new xunit -n SqlDialectTranslator.Tests -o tests/SqlDialectTranslator.Tests` | ✅ |
+| Add projects to solution | ✅ |
+| Install NuGet packages (CommandLineParser, Moq, FluentAssertions) | ✅ |
+| Create folder structure (Services, Models, Config, docs, sample-input) | ✅ |
+| Add `Config/dialects.json` — dialect detection keywords, wired to build output | ✅ |
+| Add .gitignore (C# build artifacts + API key protection) | ✅ |
+| Push initial structure to GitHub | ✅ |
 
-**NuGet packages needed:**
+**NuGet packages — installed status:**
 ```
-Anthropic.SDK                 ← Claude API client for C#
-CommandLineParser             ← Parse --input --output --dry-run args
-Microsoft.Extensions.Logging  ← Console logging
+CommandLineParser    2.9.1   ✅ installed — CLI arg parsing
+Moq                 4.20.72 ✅ installed — mocking in unit tests
+FluentAssertions    8.10.0  ✅ installed — readable test assertions
+Anthropic.SDK               🔲 install in Phase 4 — Claude API client
+coverlet.collector          🔲 install in Phase 4 — code coverage
 ```
 
 ---
@@ -253,9 +267,9 @@ Microsoft.Extensions.Logging  ← Console logging
 
 | Task | Done? |
 |---|---|
-| Define SQL Server keyword fingerprints (TOP, GETDATE, ISNULL, NVARCHAR, GO, IDENTITY, etc.) | 🔲 |
-| Define PostgreSQL keyword fingerprints (LIMIT, NOW, COALESCE, SERIAL, RETURNING, ::, etc.) | 🔲 |
-| Write scoring logic: count fingerprint hits per dialect, return winner | 🔲 |
+| Load SQL Server detection keywords from `Config/dialects.json` (TOP, GETDATE, ISNULL, NVARCHAR, GO, IDENTITY, etc.) | 🔲 |
+| Load PostgreSQL detection keywords from `Config/dialects.json` (LIMIT, NOW, COALESCE, SERIAL, RETURNING, ::, etc.) | 🔲 |
+| Write scoring logic: count keyword matches per dialect, return winner | 🔲 |
 | Handle ambiguous case: log warning, default to SQL Server | 🔲 |
 | Write `DialectDetectorTests.cs` — test with known SQL Server and PostgreSQL files | 🔲 |
 | Test: run detector on sample-input files — verify correct detection | 🔲 |
@@ -366,8 +380,8 @@ else
 
 | Task | Done? |
 |---|---|
-| Write `README.md` — usage, examples, setup instructions | 🔲 |
-| Add API key instructions (environment variable, not hardcoded) | 🔲 |
+| Write `README.md` — usage, examples, setup instructions | ✅ |
+| Add API key instructions (environment variable, not hardcoded) | ✅ |
 | Publish as self-contained exe: `dotnet publish --self-contained` | 🔲 |
 | Push final version to GitHub | 🔲 |
 

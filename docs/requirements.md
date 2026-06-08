@@ -52,7 +52,7 @@ The tool handles complete query restructuring — not just keyword replacement.
 
 ### FR-02 — Dialect Detection
 - Analyse each `.sql` file to determine source dialect
-- Detection based on keyword fingerprints (see Design doc)
+- Detection based on keyword matching — keywords loaded from `Config/dialects.json`
 - Output: `SqlServer` or `PostgreSQL` per file
 - If dialect is ambiguous, default to SQL Server and log a warning
 
@@ -139,7 +139,7 @@ These are examples. Claude handles the full translation — this table is for re
 | Boolean type | `BIT` (0/1) | `BOOLEAN` (true/false) |
 | Object quoting | `[table_name]` | `"table_name"` |
 | Type casting | `CAST(x AS INT)` or `CONVERT(INT, x)` | `x::INTEGER` |
-| If-null shorthand | `x ?? y` (not in SQL) `ISNULL(x,y)` | `COALESCE(x, y)` |
+| If-null shorthand | `ISNULL(x, y)` | `COALESCE(x, y)` |
 | Conditional | `IIF(cond, a, b)` | `CASE WHEN cond THEN a ELSE b END` |
 | Pagination | `OFFSET x ROWS FETCH NEXT y ROWS ONLY` | `LIMIT y OFFSET x` |
 | String concat | `+` operator | `\|\|` operator |
