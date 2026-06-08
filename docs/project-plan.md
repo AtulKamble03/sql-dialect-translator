@@ -8,27 +8,62 @@
 | **Owner** | Atul Kamble |
 | **Start Date** | 2026-06-08 |
 | **Goal** | CLI tool that scans a folder for .sql files and produces fully restructured translations for both SQL Server and PostgreSQL using Claude AI |
-| **Language** | C# (.NET 9) |
+| **Language** | C# (.NET 10) |
 | **AI** | Anthropic Claude API (claude-sonnet-4-6) |
-| **Repo** | TBD — new GitHub repo |
+| **Repo** | [github.com/AtulKamble03/sql-dialect-translator](https://github.com/AtulKamble03/sql-dialect-translator) |
 
 ---
 
 ## Architecture
 
 ```
-CLI Entry Point (Program.cs)
-        │
-        ├── FileScanner          Recursively find all .sql files in input folder
-        │
-        ├── DialectDetector      Analyse each file → SqlServer or PostgreSQL
-        │
-        ├── TranslationService   Send to Claude API → get both versions back
-        │       │
-        │       ├── Sequential (≤10 files)   One API call at a time
-        │       └── Batch (11+ files)        Anthropic Message Batches API
-        │
-        └── OutputWriter         Write to /output/mssql/ and /output/postgresql/
+ ┌─────────────────────────────────────────────────────────────┐
+ │                        INPUTS                               │
+ │   --input <folder>          ANTHROPIC_API_KEY (env var)     │
+ └──────────┬──────────────────────────┬────────────────────────┘
+            │                          │
+            ▼                          │
+ ┌─────────────────┐                   │
+ │  Program.cs     │  ← CLI args       │
+ │  (Orchestrator) │                   │
+ └────────┬────────┘                   │
+          │                            │
+          ▼                            │
+ ┌─────────────────┐                   │
+ │  FileScanner    │  Recursively find all .sql files in input folder
+ └────────┬────────┘
+          │  List of SqlFile objects
+          ▼
+ ┌─────────────────┐   reads   ┌──────────────────────┐
+ │ DialectDetector │ ────────► │ Config/dialects.json │
+ └────────┬────────┘           │  - sqlserver keywords│
+          │                    │  - postgresql keywords│
+          │ DetectionResult    └──────────────────────┘
+          │ (dialect + confidence)
+          ▼
+ ┌──────────────────────────────────────────┐
+ │          TranslationService              │
+ │                                          │   reads   ┌───────────────┐
+ │  ≤10 files → Sequential API calls        │ ────────► │ Config/       │
+ │  11+ files → Batch API (concurrent)      │           │ Prompts.cs    │
+ └────────┬─────────────────────────────────┘           └───────────────┘
+          │  calls
+          ▼
+ ┌──────────────────────────┐
+ │   Anthropic Claude API   │  (external — claude-sonnet-4-6)
+ └────────┬─────────────────┘
+          │  TranslationResult
+          │  (MsSql version + PostgreSQL version)
+          ▼
+ ┌─────────────────┐
+ │  OutputWriter   │
+ └────────┬────────┘
+          │
+ ┌────────▼────────────────────┐
+ │         OUTPUT              │
+ │  /output/mssql/<file>.sql   │
+ │  /output/postgresql/<file>  │
+ └─────────────────────────────┘
 ```
 
 ### Component Responsibilities
