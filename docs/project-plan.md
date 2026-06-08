@@ -14,6 +14,39 @@
 
 ---
 
+## Tech Stack
+
+### Application
+
+| Component | Technology | Version | Purpose |
+|---|---|---|---|
+| Language | C# | .NET 10 | Primary development language |
+| Runtime | .NET SDK | 10.0 | Build and run the CLI tool |
+| CLI parsing | CommandLineParser | 2.9.1 | Parse `--input`, `--output`, `--dry-run` args |
+| AI / Translation | Anthropic SDK (`Anthropic.SDK`) | Latest | Call Claude API for query translation |
+| AI Model | claude-sonnet-4-6 | — | Intelligent SQL restructuring |
+| Dialect config | JSON (`Config/dialects.json`) | — | Keyword fingerprints — no hardcoding |
+
+### Testing
+
+| Component | Technology | Version | Purpose |
+|---|---|---|---|
+| Test runner | xUnit | Latest | Industry-standard .NET test framework |
+| Mocking | Moq | 4.20.72 | Mock Anthropic API client in unit tests |
+| Assertions | FluentAssertions | 8.10.0 | Readable test assertions |
+| Coverage | coverlet | Latest | Measure code coverage |
+| Test SDK | Microsoft.NET.Test.Sdk | Latest | Required by `dotnet test` |
+
+### Infrastructure
+
+| Component | Technology | Purpose |
+|---|---|---|
+| Version control | Git + GitHub | Source code and docs |
+| API key | Environment variable `ANTHROPIC_API_KEY` | Secure — never hardcoded |
+| Distribution | `dotnet publish --self-contained` | Single executable, no .NET install needed |
+
+---
+
 ## Architecture
 
 ```
@@ -344,7 +377,7 @@ else
 
 | Decision | Choice | Why |
 |---|---|---|
-| Language | C# .NET 9 | Team preference |
+| Language | C# .NET 10 | Team preference |
 | AI model | claude-sonnet-4-6 | Best balance of quality and speed for code tasks |
 | Translation approach | Full file per API call | Preserves context across multi-statement files |
 | Batch threshold | 11+ files → Batch API | Batch API is 50% cheaper, handles scale |

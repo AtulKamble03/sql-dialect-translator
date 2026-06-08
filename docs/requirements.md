@@ -120,7 +120,7 @@ Options:
 - All Claude prompts in a single `Prompts.cs` file — easy to update without touching logic
 
 ### NFR-05 — Portability
-- Target: .NET 9, runs on Windows
+- Target: .NET 10, runs on Windows
 - Single executable deployment (`dotnet publish --self-contained`)
 
 ---
